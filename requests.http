@@ -6,17 +6,32 @@ GET http://127.0.0.1:3000/api/v1/cats
 GET http://127.0.0.1:3000/api/v1/cats/501
 
 
-### Add new cat
+### Upload cat with image
 POST http://127.0.0.1:3000/api/v1/cats
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=CatBoundary
 
-{
-  "cat_name": "Simba",
-  "weight": 6.1,
-  "owner": 1001,
-  "filename": "simba.jpg",
-  "birthdate": "2020-06-15"
-}
+--CatBoundary
+Content-Disposition: form-data; name="cat_name"
+
+Misu
+--CatBoundary
+Content-Disposition: form-data; name="weight"
+
+6
+--CatBoundary
+Content-Disposition: form-data; name="owner"
+
+1001
+--CatBoundary
+Content-Disposition: form-data; name="birthdate"
+
+2023-10-08
+--CatBoundary
+Content-Disposition: form-data; name="cat"; filename="cat.jpg"
+Content-Type: image/jpeg
+
+< ./public/cat.jpg
+--CatBoundary--
 
 
 ### Update cat
@@ -40,7 +55,7 @@ GET http://127.0.0.1:3000/api/v1/users
 GET http://127.0.0.1:3000/api/v1/users/1001
 
 
-### Add new user
+### Add user
 POST http://127.0.0.1:3000/api/v1/users
 Content-Type: application/json
 
@@ -57,7 +72,7 @@ PUT http://127.0.0.1:3000/api/v1/users/1001
 Content-Type: application/json
 
 {
-  "name": "Updated User"
+  "name": "Ayan Updated"
 }
 
 
