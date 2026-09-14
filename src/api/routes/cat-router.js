@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 
 import {
   getCats,
@@ -9,16 +8,21 @@ import {
   deleteCat,
 } from '../controllers/cat-controller.js';
 
-const catRouter = express.Router();
+import {
+  upload,
+  createThumbnail,
+} from '../../middlewares/upload.js';
 
-const upload = multer({
-  dest: 'uploads/',
-});
+const catRouter = express.Router();
 
 catRouter
   .route('/')
   .get(getCats)
-  .post(upload.single('cat'), postCat);
+  .post(
+    upload.single('cat'),
+    createThumbnail,
+    postCat
+  );
 
 catRouter
   .route('/:id')
