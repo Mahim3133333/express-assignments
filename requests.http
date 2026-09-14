@@ -1,0 +1,65 @@
+### Get all cats
+GET http://127.0.0.1:3000/api/v1/cats
+
+
+### Get one cat
+GET http://127.0.0.1:3000/api/v1/cats/501
+
+
+### Add new cat
+POST http://127.0.0.1:3000/api/v1/cats
+Content-Type: application/json
+
+{
+  "cat_name": "Simba",
+  "weight": 6.1,
+  "owner": 1001,
+  "filename": "simba.jpg",
+  "birthdate": "2020-06-15"
+}
+
+
+### Update cat
+PUT http://127.0.0.1:3000/api/v1/cats/501
+Content-Type: application/json
+
+{
+  "cat_name": "Milo Updated"
+}
+
+
+### Delete cat
+DELETE http://127.0.0.1:3000/api/v1/cats/501
+
+
+### Get all users
+GET http://127.0.0.1:3000/api/v1/users
+
+
+### Get one user
+GET http://127.0.0.1:3000/api/v1/users/1001
+
+
+### Add new user
+POST http://127.0.0.1:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "Ayan Ahmed",
+  "username": "ayan",
+  "email": "ayan@example.com",
+  "password": "hello123"
+}
+
+
+### Update user
+PUT http://127.0.0.1:3000/api/v1/users/1001
+Content-Type: application/json
+
+{
+  "name": "Updated User"
+}
+
+
+### Delete user
+DELETE http://127.0.0.1:3000/api/v1/users/1001

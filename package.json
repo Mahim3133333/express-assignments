@@ -2,11 +2,11 @@
   "name": "express-assignments",
   "version": "1.0.0",
   "description": "Express.js REST API assignments",
-  "main": "app.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
