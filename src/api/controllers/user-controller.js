@@ -2,41 +2,99 @@ import {
   listAllUsers,
   findUserById,
   addUser,
+  updateUser,
+  deleteUser as deleteUserFromDb,
 } from '../models/user-model.js';
 
-const getUsers = (req, res) => {
-  res.json(listAllUsers());
-};
-
-const getUserById = (req, res) => {
-  const user = findUserById(req.params.id);
-
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404).json({message: 'User not found'});
+const getUsers = async (req, res) => {
+  try {
+    const users = await listAllUsers();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
   }
 };
 
-const postUser = (req, res) => {
-  const newUser = addUser(req.body);
+const getUserById = async (req, res) => {
+  try {
+    const user = await findUserById(req.params.id);
 
-  res.status(201).json({
-    message: 'New user added.',
-    user: newUser,
-  });
+    if (!user) {
+      return res.status(404).json({message: 'User not found.'});
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
-const putUser = (req, res) => {
-  res.json({
-    message: 'User item updated.',
-  });
+const postUser = async (req, res) => {
+  try {
+    const userData = {
+      name: req.body.name,
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      role: req.body.role ?? 'user',
+    };
+
+    const newUser = await addUser(userData);
+
+    res.status(201).json({
+      message: 'New user added.',
+      user: newUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
-const deleteUser = (req, res) => {
-  res.json({
-    message: 'User item deleted.',
-  });
+const putUser = async (req, res) => {
+  try {
+    const oldUser = await findUserById(req.params.id);
+
+    if (!oldUser) {
+      return res.status(404).json({message: 'User not found.'});
+    }
+
+    const userData = {
+      name: req.body.name ?? oldUser.name,
+      username: req.body.username ?? oldUser.username,
+      email: req.body.email ?? oldUser.email,
+      role: req.body.role ?? oldUser.role,
+    };
+
+    await updateUser(req.params.id, userData);
+
+    const updatedUser = await findUserById(req.params.id);
+
+    res.json({
+      message: 'User item updated.',
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const affectedRows = await deleteUserFromDb(req.params.id);
+
+    if (affectedRows === 0) {
+      return res.status(404).json({message: 'User not found.'});
+    }
+
+    res.json({message: 'User item deleted.'});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
 export {

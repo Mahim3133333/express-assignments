@@ -3,6 +3,7 @@ import express from 'express';
 import {
   getCats,
   getCatById,
+  getCatsByUserId,
   postCat,
   putCat,
   deleteCat,
@@ -21,8 +22,10 @@ catRouter
   .post(
     upload.single('cat'),
     createThumbnail,
-    postCat
+    postCat,
   );
+
+catRouter.get('/user/:id', getCatsByUserId);
 
 catRouter
   .route('/:id')
