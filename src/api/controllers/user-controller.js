@@ -8,32 +8,32 @@ import {
   deleteUser as deleteUserFromDb,
 } from '../models/user-model.js';
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await listAllUsers();
     res.json(users);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const user = await findUserById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({message: 'User not found.'});
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
     }
 
     res.json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const postUser = async (req, res) => {
+const postUser = async (req, res, next) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -52,17 +52,18 @@ const postUser = async (req, res) => {
       user: newUser,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const putUser = async (req, res) => {
+const putUser = async (req, res, next) => {
   try {
     const oldUser = await findUserById(req.params.id);
 
     if (!oldUser) {
-      return res.status(404).json({message: 'User not found.'});
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
     }
 
     const userData = {
@@ -81,23 +82,23 @@ const putUser = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   try {
     const affectedRows = await deleteUserFromDb(req.params.id);
 
     if (affectedRows === 0) {
-      return res.status(404).json({message: 'User not found.'});
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
     }
 
     res.json({message: 'User item deleted.'});
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 

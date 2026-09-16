@@ -9,9 +9,24 @@ import {
   authenticateToken,
 } from '../../middlewares/authentication.js';
 
+import {
+  loginValidation,
+  validationErrors,
+} from '../../middlewares/validators.js';
+
 const authRouter = express.Router();
 
-authRouter.post('/login', login);
-authRouter.get('/me', authenticateToken, getMe);
+authRouter.post(
+  '/login',
+  loginValidation,
+  validationErrors,
+  login,
+);
+
+authRouter.get(
+  '/me',
+  authenticateToken,
+  getMe,
+);
 
 export default authRouter;

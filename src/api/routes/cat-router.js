@@ -19,6 +19,12 @@ import {
   authorizeCatOwner,
 } from '../../middlewares/authentication.js';
 
+import {
+  catPostValidation,
+  catPutValidation,
+  validationErrors,
+} from '../../middlewares/validators.js';
+
 const catRouter = express.Router();
 
 catRouter
@@ -26,6 +32,8 @@ catRouter
   .get(getCats)
   .post(
     upload.single('cat'),
+    catPostValidation,
+    validationErrors,
     createThumbnail,
     postCat,
   );
@@ -35,7 +43,17 @@ catRouter.get('/user/:id', getCatsByUserId);
 catRouter
   .route('/:id')
   .get(getCatById)
-  .put(authenticateToken, authorizeCatOwner, putCat)
-  .delete(authenticateToken, authorizeCatOwner, deleteCat);
+  .put(
+    authenticateToken,
+    authorizeCatOwner,
+    catPutValidation,
+    validationErrors,
+    putCat,
+  )
+  .delete(
+    authenticateToken,
+    authorizeCatOwner,
+    deleteCat,
+  );
 
 export default catRouter;

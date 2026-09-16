@@ -7,45 +7,46 @@ import {
   deleteCat as deleteCatFromDb,
 } from '../models/cat-model.js';
 
-const getCats = async (req, res) => {
+const getCats = async (req, res, next) => {
   try {
     const cats = await listAllCats();
     res.json(cats);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const getCatById = async (req, res) => {
+const getCatById = async (req, res, next) => {
   try {
     const cat = await findCatById(req.params.id);
 
     if (!cat) {
-      return res.status(404).json({message: 'Cat not found.'});
+      const error = new Error('Cat not found.');
+      error.status = 404;
+      return next(error);
     }
 
     res.json(cat);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const getCatsByUserId = async (req, res) => {
+const getCatsByUserId = async (req, res, next) => {
   try {
     const cats = await findCatsByUserId(req.params.id);
     res.json(cats);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const postCat = async (req, res) => {
+const postCat = async (req, res, next) => {
   try {
     if (!req.file) {
-      return res.status(400).json({message: 'Cat image is required.'});
+      const error = new Error('Cat image is required.');
+      error.status = 400;
+      return next(error);
     }
 
     const catData = {
@@ -63,17 +64,18 @@ const postCat = async (req, res) => {
       cat: newCat,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const putCat = async (req, res) => {
+const putCat = async (req, res, next) => {
   try {
     const oldCat = await findCatById(req.params.id);
 
     if (!oldCat) {
-      return res.status(404).json({message: 'Cat not found.'});
+      const error = new Error('Cat not found.');
+      error.status = 404;
+      return next(error);
     }
 
     const catData = {
@@ -99,23 +101,23 @@ const putCat = async (req, res) => {
       cat: updatedCat,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-const deleteCat = async (req, res) => {
+const deleteCat = async (req, res, next) => {
   try {
     const affectedRows = await deleteCatFromDb(req.params.id);
 
     if (affectedRows === 0) {
-      return res.status(404).json({message: 'Cat not found.'});
+      const error = new Error('Cat not found.');
+      error.status = 404;
+      return next(error);
     }
 
     res.json({message: 'Cat item deleted.'});
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 

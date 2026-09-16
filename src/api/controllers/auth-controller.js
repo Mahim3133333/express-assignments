@@ -7,20 +7,27 @@ import {
   findUserById,
 } from '../models/user-model.js';
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const {username, password} = req.body;
 
     const user = await findUserByUsername(username);
 
     if (!user) {
-      return res.status(401).json({message: 'Invalid username or password.'});
+      const error = new Error('Invalid username or password.');
+      error.status = 401;
+      return next(error);
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password,
+    );
 
     if (!passwordMatch) {
-      return res.status(401).json({message: 'Invalid username or password.'});
+      const error = new Error('Invalid username or password.');
+      error.status = 401;
+      return next(error);
     }
 
     const token = jwt.sign(
@@ -45,24 +52,29 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Login failed.'});
+    next(error);
   }
 };
 
-const getMe = async (req, res) => {
+const getMe = async (req, res, next) => {
   try {
-    const user = await findUserById(res.locals.user.user_id);
+    const user = await findUserById(
+      res.locals.user.user_id,
+    );
 
     if (!user) {
-      return res.status(404).json({message: 'User not found.'});
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
     }
 
     res.json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: 'Database error.'});
+    next(error);
   }
 };
 
-export {login, getMe};
+export {
+  login,
+  getMe,
+};

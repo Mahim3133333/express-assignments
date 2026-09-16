@@ -13,17 +13,37 @@ import {
   authorizeUser,
 } from '../../middlewares/authentication.js';
 
+import {
+  userPostValidation,
+  userPutValidation,
+  validationErrors,
+} from '../../middlewares/validators.js';
+
 const userRouter = express.Router();
 
 userRouter
   .route('/')
   .get(getUsers)
-  .post(postUser);
+  .post(
+    userPostValidation,
+    validationErrors,
+    postUser,
+  );
 
 userRouter
   .route('/:id')
   .get(getUserById)
-  .put(authenticateToken, authorizeUser, putUser)
-  .delete(authenticateToken, authorizeUser, deleteUser);
+  .put(
+    authenticateToken,
+    authorizeUser,
+    userPutValidation,
+    validationErrors,
+    putUser,
+  )
+  .delete(
+    authenticateToken,
+    authorizeUser,
+    deleteUser,
+  );
 
 export default userRouter;
