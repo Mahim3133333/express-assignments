@@ -1,67 +1,128 @@
 import {
   listAllCats,
   findCatById,
+  findCatsByUserId,
   addCat,
+  updateCat,
+  deleteCat as deleteCatFromDb,
 } from '../models/cat-model.js';
 
-const getCats = (req, res) => {
-  const cats = listAllCats();
-  res.json(cats);
+const getCats = async (req, res) => {
+  try {
+    const cats = await listAllCats();
+    res.json(cats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
-const getCatById = (req, res) => {
-  const cat = findCatById(req.params.id);
+const getCatById = async (req, res) => {
+  try {
+    const cat = await findCatById(req.params.id);
 
-  if (cat) {
+    if (!cat) {
+      return res.status(404).json({message: 'Cat not found.'});
+    }
+
     res.json(cat);
-  } else {
-    res.status(404).json({
-      message: 'Cat not found',
-    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
   }
 };
 
-const postCat = (req, res) => {
-  console.log('Form data:', req.body);
-  console.log('File data:', req.file);
-
-  if (!req.file) {
-    return res.status(400).json({
-      message: 'Cat image is required.',
-    });
+const getCatsByUserId = async (req, res) => {
+  try {
+    const cats = await findCatsByUserId(req.params.id);
+    res.json(cats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
   }
-
-  const catData = {
-    cat_name: req.body.cat_name,
-    weight: Number(req.body.weight),
-    owner: Number(req.body.owner),
-    birthdate: req.body.birthdate,
-    filename: req.file.filename,
-  };
-
-  const newCat = addCat(catData);
-
-  res.status(201).json({
-    message: 'New cat added.',
-    cat: newCat,
-  });
 };
 
-const putCat = (req, res) => {
-  res.json({
-    message: 'Cat item updated.',
-  });
+const postCat = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({message: 'Cat image is required.'});
+    }
+
+    const catData = {
+      cat_name: req.body.cat_name,
+      weight: Number(req.body.weight),
+      owner: Number(req.body.owner),
+      filename: req.file.filename,
+      birthdate: req.body.birthdate,
+    };
+
+    const newCat = await addCat(catData);
+
+    res.status(201).json({
+      message: 'New cat added.',
+      cat: newCat,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
-const deleteCat = (req, res) => {
-  res.json({
-    message: 'Cat item deleted.',
-  });
+const putCat = async (req, res) => {
+  try {
+    const oldCat = await findCatById(req.params.id);
+
+    if (!oldCat) {
+      return res.status(404).json({message: 'Cat not found.'});
+    }
+
+    const catData = {
+      cat_name: req.body.cat_name ?? oldCat.cat_name,
+      weight:
+        req.body.weight !== undefined
+          ? Number(req.body.weight)
+          : Number(oldCat.weight),
+      owner:
+        req.body.owner !== undefined
+          ? Number(req.body.owner)
+          : oldCat.owner,
+      filename: oldCat.filename,
+      birthdate: req.body.birthdate ?? oldCat.birthdate,
+    };
+
+    await updateCat(req.params.id, catData);
+
+    const updatedCat = await findCatById(req.params.id);
+
+    res.json({
+      message: 'Cat item updated.',
+      cat: updatedCat,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
+};
+
+const deleteCat = async (req, res) => {
+  try {
+    const affectedRows = await deleteCatFromDb(req.params.id);
+
+    if (affectedRows === 0) {
+      return res.status(404).json({message: 'Cat not found.'});
+    }
+
+    res.json({message: 'Cat item deleted.'});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Database error.'});
+  }
 };
 
 export {
   getCats,
   getCatById,
+  getCatsByUserId,
   postCat,
   putCat,
   deleteCat,

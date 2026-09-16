@@ -3,6 +3,7 @@ import express from 'express';
 import {
   getCats,
   getCatById,
+  getCatsByUserId,
   postCat,
   putCat,
   deleteCat,
@@ -13,6 +14,11 @@ import {
   createThumbnail,
 } from '../../middlewares/upload.js';
 
+import {
+  authenticateToken,
+  authorizeCatOwner,
+} from '../../middlewares/authentication.js';
+
 const catRouter = express.Router();
 
 catRouter
@@ -21,13 +27,15 @@ catRouter
   .post(
     upload.single('cat'),
     createThumbnail,
-    postCat
+    postCat,
   );
+
+catRouter.get('/user/:id', getCatsByUserId);
 
 catRouter
   .route('/:id')
   .get(getCatById)
-  .put(putCat)
-  .delete(deleteCat);
+  .put(authenticateToken, authorizeCatOwner, putCat)
+  .delete(authenticateToken, authorizeCatOwner, deleteCat);
 
 export default catRouter;
